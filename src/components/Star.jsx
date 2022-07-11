@@ -14,22 +14,10 @@ class Star extends Component {
     const styles = {
       cursor: "pointer",
     };
-    if (this.state.star === true) {
-      return (
-        <i
-          style={styles}
-          className="fa-regular fa-star"
-          onClick={this.handleStar}
-        ></i>
-      );
-    } else
-      return (
-        <i
-          style={styles}
-          className="fa-solid fa-star"
-          onClick={this.handleStar}
-        ></i>
-      );
+    let classes = "fa-star ";
+    classes += this.state.star === true ? "fa-regular" : "fa-solid";
+
+    return <i style={styles} className={classes} onClick={this.handleStar}></i>;
   }
 }
 
