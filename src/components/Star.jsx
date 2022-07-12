@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import Foods from "./Foods";
 
 class Star extends Component {
   state = {
@@ -14,8 +13,8 @@ class Star extends Component {
     const styles = {
       cursor: "pointer",
     };
-    let classes = "fa-star ";
-    classes += this.state.star === true ? "fa-regular" : "fa-solid";
+    let classes = "fa-star fa-";
+    classes += this.state.star === true ? "regular" : "solid";
 
     return <i style={styles} className={classes} onClick={this.handleStar}></i>;
   }

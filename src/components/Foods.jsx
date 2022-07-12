@@ -1,4 +1,3 @@
-import { toHaveStyle } from "@testing-library/jest-dom/dist/matchers";
 import React, { Component } from "react";
 import FakeFoods, { getFoods } from "../fakeFoodService";
 import Star from "./Star";
