@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import FakeFoods, { getFoods } from "../fakeFoodService";
 import Star from "./Star";
+import Pagination from "./Pagination";
 
 class Foods extends Component {
   state = {
@@ -57,6 +58,7 @@ class Foods extends Component {
             ))}
           </tbody>
         </table>
+        <Pagination />
       </div>
     );
   }
