@@ -6,6 +6,7 @@ class Pagination extends Component {
     page2: false,
     page3: false,
   };
+
   handlePagination = () => {
     if (this.state.page1 === false) {
       this.setState({ page1: true, page2: false, page3: false });
