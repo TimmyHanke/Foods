@@ -82,6 +82,10 @@ class Foods extends Component {
     if (count === 0) return <p>There are no foods in the database</p>;
 
     const { foods, filteredCount } = this.getPaginatedFoods();
+
+    if (filteredCount === 0) {
+      this.setState({ selectedCategory: DEFAULT_CATEGORY });
+    }
     return (
       <div className="row m4-4">
         <div className="col-2">
