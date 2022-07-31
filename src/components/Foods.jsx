@@ -1,9 +1,11 @@
 import React, { Component } from "react";
+import _ from "lodash";
 import FakeFoods, { getFoods } from "../fakeFoodService";
 import FakeCategory, { getCategories } from "../FakeCategoryService";
-import Star from "../common/Star";
 import Pagination from "../common/Pagination";
 import ListGroup from "../common/ListGroup";
+import { paginate } from "../utils/paginate";
+import Foodstable from "./Foodstable";
 
 const DEFAULT_CATEGORY = { _id: "", name: "All categories" };
 
@@ -11,9 +13,10 @@ class Foods extends Component {
   state = {
     foods: [],
     categories: [],
-    pageSize: 4,
     selectedPage: 1,
+    pageSize: 4,
     selectedCategory: DEFAULT_CATEGORY,
+    sortColumn: { path: "name", order: "asc" },
   };
 
   componentDidMount() {
@@ -28,11 +31,12 @@ class Foods extends Component {
     foods[index].isFavorite = !foods[index].isFavorite;
     this.setState({ foods });
   };
+  handleSort = (sortColumn) => this.setState({ sortColumn });
 
   handlePageChange = (page) => this.setState({ selectedPage: page });
 
   handleCategorySelect = (category) =>
-    this.setState({ selectedCategory: category });
+    this.setState({ selectedCategory: category, selectedPage: 1 });
 
   handleDelete = (id) => {
     let foods = this.state.foods.filter((food) => food._id !== id);
@@ -40,13 +44,44 @@ class Foods extends Component {
     this.setState({ foods });
   };
 
-  render() {
-    const { length: count } = this.state.foods;
-    const { pageSize, selectedPage, categories, selectedCategory } = this.state;
+  getPaginatedFoods() {
+    const {
+      pageSize,
+      selectedPage,
+      selectedCategory,
+      sortColumn,
+      foods: allFoods,
+    } = this.state;
 
-    if (count === 0) {
-      return <p>There are no foods in the database</p>;
-    }
+    const filteredFoods = selectedCategory._id
+      ? allFoods.filter((f) => f.category._id === selectedCategory._id)
+      : allFoods;
+
+    const sortedFoods = _.orderBy(
+      filteredFoods,
+      [sortColumn.path],
+      [sortColumn.order]
+    );
+
+    const foods = paginate(sortedFoods, selectedPage, pageSize);
+
+    return { foods, filteredCount: filteredFoods.length };
+  }
+
+  render() {
+    const {
+      pageSize,
+      selectedPage,
+      categories,
+      selectedCategory,
+      sortColumn,
+      foods: allFoods,
+    } = this.state;
+    const { length: count } = allFoods;
+
+    if (count === 0) return <p>There are no foods in the database</p>;
+
+    const { foods, filteredCount } = this.getPaginatedFoods();
     return (
       <div className="row m4-4">
         <div className="col-2">
@@ -57,55 +92,22 @@ class Foods extends Component {
           />
         </div>
         <div className="col">
-          <p>Showing {count} foods in the database</p>
+          <p>Showing {filteredCount} foods in the database</p>
 
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Stock</th>
-                <th>Price</th>
-                <th></th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {this.state.foods.map((food) => (
-                <tr key={food._id}>
-                  <td>{food.name}</td>
-                  <td>{food.category.name}</td>
-                  <td>{food.numberInStock}</td>
-                  <td>{food.price}</td>
-                  <td>
-                    <Star
-                      onStar={() => this.handleStar(food)}
-                      isFavorite={food.isFavorite}
-                    />
-                  </td>
-                  <td>
-                    {
-                      <button
-                        type="button"
-                        className="btn btn-danger"
-                        onClick={() => this.handleDelete(food._id)}
-                      >
-                        delete
-                      </button>
-                    }
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <Foodstable
+            foods={foods}
+            onStar={this.handleStar}
+            onDelete={this.handleDelete}
+            onSort={this.handleSort}
+            sortColumn={sortColumn}
+          />
+          <Pagination
+            itemCount={filteredCount}
+            pageSize={pageSize}
+            selectedPage={selectedPage}
+            onPageChange={this.handlePageChange}
+          />
         </div>
-
-        <Pagination
-          itemCount={count}
-          pageSize={pageSize}
-          selectedPage={selectedPage}
-          onPageChange={this.handlePageChange}
-        />
       </div>
     );
   }
