@@ -8,9 +8,9 @@ function Navigation() {
 
       <div className="collapse navbar-collapse" id="navbarNav">
         <ul className="navbar-nav mx-2">
-          <Input label={"Foods"} path={"/foods"} />
-          <Input label={"Customers"} path={"/customers"} />
-          <Input label={"Orders"} path={"/orders"} />
+          <Input label={"Foods"} path={"/"} />
+          <Input label={"Customers"} path={"customers"} />
+          <Input label={"Orders"} path={"orders"} />
         </ul>
       </div>
     </nav>
