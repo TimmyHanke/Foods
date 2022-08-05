@@ -6,7 +6,7 @@ class FoodForm extends Component {
     return (
       <div>
         <h1>Food Form - {this.props.match.params.id} </h1>
-        <Link to="foods">
+        <Link to="/foods">
           <button type="button" class="btn btn-primary">
             Save
           </button>
