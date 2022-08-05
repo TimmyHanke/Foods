@@ -17,6 +17,7 @@ class Foods extends Component {
     pageSize: 4,
     selectedCategory: DEFAULT_CATEGORY,
     sortColumn: { path: "name", order: "asc" },
+    path: "",
   };
 
   componentDidMount() {
@@ -87,30 +88,32 @@ class Foods extends Component {
       this.setState({ selectedCategory: DEFAULT_CATEGORY });
     }
     return (
-      <div className="row m4-4">
-        <div className="col-2">
-          <ListGroup
-            items={categories}
-            selectedItem={selectedCategory}
-            onItemSelect={this.handleCategorySelect}
-          />
-        </div>
-        <div className="col">
-          <p>Showing {filteredCount} foods in the database</p>
+      <div>
+        <div className="row m4-4">
+          <div className="col-2">
+            <ListGroup
+              items={categories}
+              selectedItem={selectedCategory}
+              onItemSelect={this.handleCategorySelect}
+            />
+          </div>
+          <div className="col">
+            <p>Showing {filteredCount} foods in the database</p>
 
-          <Foodstable
-            foods={foods}
-            onStar={this.handleStar}
-            onDelete={this.handleDelete}
-            onSort={this.handleSort}
-            sortColumn={sortColumn}
-          />
-          <Pagination
-            itemCount={filteredCount}
-            pageSize={pageSize}
-            selectedPage={selectedPage}
-            onPageChange={this.handlePageChange}
-          />
+            <Foodstable
+              foods={foods}
+              onStar={this.handleStar}
+              onDelete={this.handleDelete}
+              onSort={this.handleSort}
+              sortColumn={sortColumn}
+            />
+            <Pagination
+              itemCount={filteredCount}
+              pageSize={pageSize}
+              selectedPage={selectedPage}
+              onPageChange={this.handlePageChange}
+            />
+          </div>
         </div>
       </div>
     );
