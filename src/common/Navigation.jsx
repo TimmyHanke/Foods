@@ -4,7 +4,7 @@ import Input from "./Input";
 function Navigation() {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light ">
-      <div className="mx-2">Intensive Foods</div>
+      <div className="mx-2 fs-5">Intensive Foods</div>
 
       <div className="collapse navbar-collapse" id="navbarNav">
         <ul className="navbar-nav mx-2">
