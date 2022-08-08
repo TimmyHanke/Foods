@@ -22,6 +22,7 @@ class Foods extends Component {
 
   componentDidMount() {
     const categories = [DEFAULT_CATEGORY, ...getCategories()];
+
     this.setState({ foods: getFoods(), categories });
   }
 

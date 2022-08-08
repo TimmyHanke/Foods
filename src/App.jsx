@@ -11,19 +11,21 @@ import LoginForm from "./components/LoginForm";
 class App extends Component {
   render() {
     return (
-      <div className="container mt-4">
+      <>
         <Navigation />
-        <Switch>
-          <Route path="/login" component={LoginForm} />
-          <Route path="/customers" component={Customers} />
-          <Route path="/orders" component={Orders} />
-          <Route path="/FoodForm/:id" component={FoodForm} />
-          <Route path="/not-found" component={NotFound} />
-          <Route exact path="/Foods" component={Foods} />
-          <Route exact path="/" component={Foods} />
-          <Redirect to="/not-found" />
-        </Switch>
-      </div>
+        <div className="container mt-4">
+          <Switch>
+            <Route path="/login" component={LoginForm} />
+            <Route path="/customers" component={Customers} />
+            <Route path="/orders" component={Orders} />
+            <Route path="/FoodForm/:id" component={FoodForm} />
+            <Route path="/not-found" component={NotFound} />
+            <Route path="/Foods" component={Foods} />
+            <Route exact path="/" component={Foods} />
+            <Redirect to="/not-found" />
+          </Switch>
+        </div>
+      </>
     );
   }
 }
