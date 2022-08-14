@@ -1,15 +1,18 @@
 import React, { Component } from "react";
-import _ from "lodash";
+import _, { filter, includes } from "lodash";
+import { Link } from "react-router-dom";
 import FakeFoods, { getFoods } from "../fakeFoodService";
 import FakeCategory, { getCategories } from "../FakeCategoryService";
 import Pagination from "../common/Pagination";
+import FormInput from "../common/FormInput";
 import ListGroup from "../common/ListGroup";
 import { paginate } from "../utils/paginate";
 import Foodstable from "./Foodstable";
+import Form from "../common/Form";
 
 const DEFAULT_CATEGORY = { _id: "", name: "All categories" };
 
-class Foods extends Component {
+class Foods extends Form {
   state = {
     foods: [],
     categories: [],
@@ -18,6 +21,7 @@ class Foods extends Component {
     selectedCategory: DEFAULT_CATEGORY,
     sortColumn: { path: "name", order: "asc" },
     path: "",
+    search: "",
   };
 
   componentDidMount() {
@@ -46,6 +50,12 @@ class Foods extends Component {
     this.setState({ foods });
   };
 
+  handleSearch = (e) => {
+    this.state.selectedCategory = DEFAULT_CATEGORY;
+    let search = e.target.value;
+    this.setState({ search });
+  };
+
   getPaginatedFoods() {
     const {
       pageSize,
@@ -55,19 +65,27 @@ class Foods extends Component {
       foods: allFoods,
     } = this.state;
 
-    const filteredFoods = selectedCategory._id
-      ? allFoods.filter((f) => f.category._id === selectedCategory._id)
+    let filteredFoods = selectedCategory._id
+      ? allFoods.filter(
+          (f) =>
+            f.category._id === selectedCategory._id && this.state.search === ""
+        )
       : allFoods;
+
+    filteredFoods = filteredFoods.filter((f) =>
+      f.name.toLowerCase().includes(this.state.search.toLowerCase())
+    );
 
     const sortedFoods = _.orderBy(
       filteredFoods,
       [sortColumn.path],
       [sortColumn.order]
     );
-
     const foods = paginate(sortedFoods, selectedPage, pageSize);
-
-    return { foods, filteredCount: filteredFoods.length };
+    let main = allFoods;
+    if (filteredFoods.length >= 1) {
+      return { foods, filteredCount: filteredFoods.length };
+    }
   }
 
   render() {
@@ -99,7 +117,15 @@ class Foods extends Component {
             />
           </div>
           <div className="col">
+            <Link to="/foods/new">
+              <div className="btn btn-primary">New Food</div>
+            </Link>
             <p>Showing {filteredCount} foods in the database</p>
+            <FormInput
+              foods={this.state.foods}
+              type="form-control"
+              onChange={this.handleSearch}
+            />
 
             <Foodstable
               foods={foods}

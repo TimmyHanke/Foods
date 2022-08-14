@@ -1,65 +1,36 @@
-import React, { Component } from "react";
-import _ from "lodash";
+import _, { join } from "lodash";
+import Joi from "joi";
+import Form from "../common/Form";
 import FormInput from "../common/FormInput";
 
-class LoginForm extends Component {
+class LoginForm extends Form {
   state = {
-    account: {
+    data: {
       username: "",
       password: "",
     },
     errors: {},
   };
 
-  validate() {
-    const errors = {};
-    const { username, password } = this.state.account;
-
-    if (username === "") {
-      errors.username = "Username cannot be emty";
-    }
-    if (password === "") {
-      errors.password = "Password is required";
-    }
-    return errors;
-  }
-
-  handleSubmit = (e) => {
-    e.preventDefault();
-    const errors = this.validate();
-    console.log(errors);
-    this.setState({ errors });
-    if (!_.isEmpty(errors)) return;
-    console.log("LOGGA IN");
-  };
-
-  handleChange = ({ target: input }) => {
-    const account = { ...this.state.account };
-    account[input.id] = input.value;
-    this.setState({ account });
+  schema = Joi.object({
+    username: Joi.string().required().min(2).label("Username"),
+    password: Joi.string().required().min(4).label("Password"),
+  });
+  doSubmit = () => {
+    console.log("Log in");
   };
 
   render() {
-    const { account, errors } = this.state;
     return (
-      <form onSubmit={this.handleSubmit}>
-        <FormInput
-          name="username"
-          label="Username"
-          value={account.username}
-          error={errors.username}
-          onChange={this.handleChange}
-        />
-        <FormInput
-          name="password"
-          label="Password"
-          value={account.password}
-          error={errors.password}
-          onChange={this.handleChange}
-        />
+      <div>
+        <h1>Login</h1>
+        <form onSubmit={this.handleSubmit}>
+          {this.renderInput("username", "Username", "form-control")}
+          {this.renderInput("password", "Password", "form-control")}
 
-        <button className="btn btn-primary">Submit</button>
-      </form>
+          {this.renderButton("Log in")}
+        </form>
+      </div>
     );
   }
 }

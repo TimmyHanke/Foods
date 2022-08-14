@@ -11,6 +11,8 @@ function Navigation() {
           <Input label={"Foods"} path={"/"} />
           <Input label={"Customers"} path={"/customers"} />
           <Input label={"Orders"} path={"/orders"} />
+          <Input label={"Login"} path={"/login"} />
+          <Input label={"Register"} path={"/register"} />
         </ul>
       </div>
     </nav>
