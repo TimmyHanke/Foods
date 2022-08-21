@@ -1,10 +1,17 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Input from "./Input";
 
 function Navigation() {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light ">
-      <div className="mx-2 fs-5">Intensive Foods</div>
+      <div className="navbar-nav mt-3">
+        <ul className="disabled">
+          <Link to="/" className="nav-link">
+            Intensinve Foods
+          </Link>
+        </ul>
+      </div>
 
       <div className="collapse navbar-collapse" id="navbarNav">
         <ul className="navbar-nav mx-2">

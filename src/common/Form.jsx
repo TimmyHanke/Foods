@@ -1,13 +1,21 @@
 import React, { Component } from "react";
 import FormInput from "./FormInput";
-import FakeCategory, { getCategories } from "../FakeCategoryService";
+import FormInputSelect from "./FormInputSelect";
+import http from "../httpService";
+import config from "../config.json";
 
 class Form extends Component {
   state = {
-    data: "",
+    data: {},
     errors: {},
+    list: {},
   };
 
+  async componentDidMount() {
+    const serverCategories = await http.get(config.apiEndpointCategories);
+
+    this.setState({ list: serverCategories.data });
+  }
   validate() {
     const options = { abortEarly: false };
     const { error } = this.schema.validate(this.state.data, options);
@@ -61,7 +69,20 @@ class Form extends Component {
         value={data[name]}
         error={errors[name]}
         onChange={this.handleChange}
-        list={getCategories()}
+      />
+    );
+  }
+  renderInputSelect(name, label, list, placeHolder = "") {
+    const { data, errors } = this.state;
+    return (
+      <FormInputSelect
+        name={name}
+        label={label}
+        list={list}
+        placeHolder={placeHolder}
+        value={data[name]}
+        error={errors[name]}
+        onChange={this.handleChange}
       />
     );
   }

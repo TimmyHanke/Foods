@@ -16,19 +16,15 @@ class App extends Component {
         <Navigation />
         <div className="container mt-4">
           <Switch>
-            <Route path="/login" component={LoginForm} />
-            <Route path="/Register" component={RegisterForm} />
-            <Route path="/customers" component={Customers} />
+            <Route path="/foods/:id" component={FoodForm} />
+            <Route path="/foods" component={Foods} />
             <Route path="/orders" component={Orders} />
-            <Route path="/foods/new" component={FoodForm} />
-            <Route
-              path="/FoodForm/:id/:name/:category/:numberInStock/:price"
-              component={FoodForm}
-            />
             <Route path="/not-found" component={NotFound} />
-            <Route path="/Foods" component={Foods} />
-            <Route exact path="/" component={Foods} />
-            <Redirect to="/not-found" />
+            <Route path="/customers" component={Customers} />
+            <Route path="/register" component={RegisterForm} />
+            <Route path="/login" component={LoginForm} />
+            <Redirect exact from="/" to="/foods" />
+            <Redirect exact to="/not-found" />
           </Switch>
         </div>
       </>

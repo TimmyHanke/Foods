@@ -1,15 +1,14 @@
 import React, { Component } from "react";
 import _, { filter, includes } from "lodash";
 import { Link } from "react-router-dom";
-import FakeFoods, { getFoods } from "../fakeFoodService";
-import FakeCategory, { getCategories } from "../FakeCategoryService";
 import Pagination from "../common/Pagination";
-import FormInput from "../common/FormInput";
 import ListGroup from "../common/ListGroup";
 import { paginate } from "../utils/paginate";
 import Foodstable from "./Foodstable";
 import Form from "../common/Form";
-
+import SearchBox from "../common/SearchBox";
+import http from "../httpService";
+import config from "../config.json";
 const DEFAULT_CATEGORY = { _id: "", name: "All categories" };
 
 class Foods extends Form {
@@ -21,13 +20,18 @@ class Foods extends Form {
     selectedCategory: DEFAULT_CATEGORY,
     sortColumn: { path: "name", order: "asc" },
     path: "",
-    search: "",
+    searchQuery: "",
+    serverFoods: [],
   };
 
-  componentDidMount() {
-    const categories = [DEFAULT_CATEGORY, ...getCategories()];
+  async componentDidMount() {
+    const serverCategories = await http.get(config.apiEndpointCategories);
+    const serverFoods = await http.get(config.apiEndpointFoods);
 
-    this.setState({ foods: getFoods(), categories });
+    this.setState({
+      foods: serverFoods.data,
+      categories: [DEFAULT_CATEGORY, ...serverCategories.data],
+    });
   }
 
   handleStar = (food) => {
@@ -42,39 +46,42 @@ class Foods extends Form {
   handlePageChange = (page) => this.setState({ selectedPage: page });
 
   handleCategorySelect = (category) =>
-    this.setState({ selectedCategory: category, selectedPage: 1 });
+    this.setState({
+      selectedCategory: category,
+      selectedPage: 1,
+      searchQuery: "",
+    });
 
-  handleDelete = (id) => {
+  handleDelete = async (id) => {
     let foods = this.state.foods.filter((food) => food._id !== id);
-
     this.setState({ foods });
+    await http.delete(config.apiEndpointFoods + id);
   };
 
-  handleSearch = (e) => {
-    this.state.selectedCategory = DEFAULT_CATEGORY;
-    let search = e.target.value;
-    this.setState({ search });
-  };
+  handleSearch = (searchQuery) =>
+    this.setState({ searchQuery, selectedCategory: DEFAULT_CATEGORY });
 
   getPaginatedFoods() {
     const {
       pageSize,
       selectedPage,
+      searchQuery,
       selectedCategory,
       sortColumn,
       foods: allFoods,
     } = this.state;
 
-    let filteredFoods = selectedCategory._id
-      ? allFoods.filter(
-          (f) =>
-            f.category._id === selectedCategory._id && this.state.search === ""
-        )
-      : allFoods;
+    let filteredFoods = allFoods;
 
-    filteredFoods = filteredFoods.filter((f) =>
-      f.name.toLowerCase().includes(this.state.search.toLowerCase())
-    );
+    if (selectedCategory._id) {
+      filteredFoods = allFoods.filter(
+        (f) => f.category._id === selectedCategory._id
+      );
+    } else if (searchQuery) {
+      filteredFoods = allFoods.filter((f) =>
+        f.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
 
     const sortedFoods = _.orderBy(
       filteredFoods,
@@ -82,10 +89,7 @@ class Foods extends Form {
       [sortColumn.order]
     );
     const foods = paginate(sortedFoods, selectedPage, pageSize);
-    let main = allFoods;
-    if (filteredFoods.length >= 1) {
-      return { foods, filteredCount: filteredFoods.length };
-    }
+    return { foods, filteredCount: filteredFoods.length };
   }
 
   render() {
@@ -103,9 +107,6 @@ class Foods extends Form {
 
     const { foods, filteredCount } = this.getPaginatedFoods();
 
-    if (filteredCount === 0) {
-      this.setState({ selectedCategory: DEFAULT_CATEGORY });
-    }
     return (
       <div>
         <div className="row m4-4">
@@ -117,15 +118,12 @@ class Foods extends Form {
             />
           </div>
           <div className="col">
-            <Link to="/foods/new">
-              <div className="btn btn-primary">New Food</div>
+            <Link to="/foods/new" className="btn btn-primary">
+              New Food
             </Link>
             <p>Showing {filteredCount} foods in the database</p>
-            <FormInput
-              foods={this.state.foods}
-              type="form-control"
-              onChange={this.handleSearch}
-            />
+
+            <SearchBox value={this.state.search} onChange={this.handleSearch} />
 
             <Foodstable
               foods={foods}

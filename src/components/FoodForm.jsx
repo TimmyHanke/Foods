@@ -1,26 +1,27 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
-import FormInput from "../common/FormInput";
-import Foods, { getFoods, saveFood } from "../fakeFoodService";
 import Form from "../common/Form";
 import Joi from "joi";
-import { isDisabled } from "@testing-library/user-event/dist/utils";
+import http from "../httpService";
+import config from "../config.json";
 
 class FoodForm extends Form {
   state = {
     data: {
+      _id: undefined,
       name: "",
-      category: "",
+      categoryId: "",
       numberInStock: "",
       price: "",
     },
     errors: {},
-    newFood: [],
+    categories: [],
+    category: "",
   };
 
   schema = Joi.object({
-    name: isDisabled,
-    category: isDisabled,
+    _id: Joi.allow(),
+    name: Joi.string().allow(),
+    categoryId: Joi.string().required().label("Category"),
     numberInStock: Joi.number()
       .required()
       .min(0)
@@ -29,73 +30,66 @@ class FoodForm extends Form {
     price: Joi.number().required().min(0).max(10).label("Price"),
   });
 
-  handleText = ({ target: input }) => {
-    const data = { ...this.state.data };
-    data[input.id] = input.value;
-    this.state.data.name = data.name;
-    this.state.data.category = data.category;
-    this.state.data.numberInStock = data.numberInStock;
-    this.state.data.price = data.price;
-
-    this.setState({ data });
-  };
-  raiseNew = (food) => {
-    console.log("denna", food);
-    saveFood(food);
-  };
-  doSubmit = (e) => {
-    e.preventDefault();
-
-    let food = {
-      name: this.state.data.name,
-      category: this.state.data.category,
-      numberInStock: this.state.data.numberInStock,
-      price: this.state.data.price,
-    };
-    this.state.newFood = [food, ...this.state.newFood];
-    console.log("added", this.state.newFood);
-    this.raiseNew(food);
-  };
-
-  renderParams() {
-    if (this.props.match.params.name !== "") {
-      this.state.data.name = this.props.match.params.name;
-      this.state.data.category = this.props.match.params.category;
-      this.state.data.numberInStock = this.props.match.params.numberInStock;
-      this.state.data.price = this.props.match.params.price;
-    }
+  componentDidMount() {
+    this.populateCategories();
+    this.populateFoods();
   }
+
+  async populateCategories() {
+    const serverCategories = await http.get(config.apiEndpointCategories);
+    this.setState({ categories: serverCategories.data });
+  }
+  async populateFoods() {
+    const foodId = this.props.match.params.id;
+
+    if (foodId === "new") return;
+
+    const getFoodServer = await http.get(
+      config.apiEndpointFoods + this.props.match.params.id
+    );
+
+    if (!getFoodServer) return this.props.history.replace("/not-found");
+    this.setState({
+      data: this.mapToViewModel(getFoodServer),
+    });
+  }
+  mapToViewModel(getFoodServer) {
+    return {
+      name: getFoodServer.data.name,
+      categoryId: getFoodServer.data.category._id,
+      numberInStock: getFoodServer.data.numberInStock,
+      price: getFoodServer.data.price,
+    };
+  }
+
+  doSubmit = () => {
+    const foodId = this.props.match.params.id;
+    const data = this.state.data;
+    this.setState({ data });
+
+    if (foodId === "new") {
+      http.post(config.apiEndpointFoods, data);
+      return this.props.history.push("/foods");
+    }
+
+    http.put(config.apiEndpointFoods + foodId, data);
+
+    this.props.history.push("/foods");
+  };
 
   render() {
     return (
       <div>
-        <h1>Food Form {this.props.match.params.id} </h1>
         <form onSubmit={this.handleSubmit}>
-          {this.renderParams()}
-          {this.renderInput(
-            "name",
-            "Name",
-            "form-control",
-            "this.state.data.name"
-          )}
-          {this.renderInput(
-            "category",
+          {this.renderInput("name", "Name", "form-control")}
+          {this.renderInputSelect(
+            "categoryId",
             "Category",
-            "form-select",
-            "this.state.data.name"
+            this.state.categories,
+            "Select..."
           )}
-          {this.renderInput(
-            "numberInStock",
-            "NumberInStock",
-            "form-control",
-            "this.state.data.name"
-          )}
-          {this.renderInput(
-            "price",
-            "Price",
-            "form-control",
-            "this.state.data.name"
-          )}
+          {this.renderInput("numberInStock", "NumberInStock", "form-control")}
+          {this.renderInput("price", "Price", "form-control")}
           {this.renderButton("Save")}
         </form>
       </div>
