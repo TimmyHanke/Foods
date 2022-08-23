@@ -1,7 +1,14 @@
 import React, { Component } from "react";
+import {
+  getCategories,
+  getFoods,
+  getFoodsId,
+  getCreateFood,
+  getChangeFood,
+} from "../services/foodService";
 import Form from "../common/Form";
 import Joi from "joi";
-import http from "../httpService";
+import http from "../services/httpService";
 import config from "../config.json";
 
 class FoodForm extends Form {
@@ -36,17 +43,15 @@ class FoodForm extends Form {
   }
 
   async populateCategories() {
-    const serverCategories = await http.get(config.apiEndpointCategories);
-    this.setState({ categories: serverCategories.data });
+    const categories = await getCategories();
+    this.setState({ categories: categories.data });
   }
   async populateFoods() {
     const foodId = this.props.match.params.id;
 
     if (foodId === "new") return;
 
-    const getFoodServer = await http.get(
-      config.apiEndpointFoods + this.props.match.params.id
-    );
+    const getFoodServer = await getFoodsId(foodId);
 
     if (!getFoodServer) return this.props.history.replace("/not-found");
     this.setState({
@@ -68,11 +73,11 @@ class FoodForm extends Form {
     this.setState({ data });
 
     if (foodId === "new") {
-      http.post(config.apiEndpointFoods, data);
+      getCreateFood(data);
       return this.props.history.push("/foods");
     }
 
-    http.put(config.apiEndpointFoods + foodId, data);
+    getChangeFood(foodId, data);
 
     this.props.history.push("/foods");
   };

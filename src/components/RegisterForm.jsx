@@ -1,10 +1,10 @@
 import React, { Component } from "react";
-import _ from "lodash";
+import http from "../services/httpService";
+import config from "../config.json";
+import joi from "joi";
 import Joi, { allow } from "joi";
-import FormInput from "../common/FormInput";
 import Form from "../common/Form";
-import { isDisabled } from "@testing-library/user-event/dist/utils";
-import joy from "joy";
+import user from "../services/userService";
 
 class RegisterForm extends Form {
   state = {
@@ -23,8 +23,16 @@ class RegisterForm extends Form {
     password: Joi.string().required().min(5).label("Password"),
     name: Joi.string().allow(""),
   });
-  doSubmit = () => {
-    console.log("Register");
+  doSubmit = async () => {
+    try {
+      await user.register(this.state.data);
+      window.location = "/";
+    } catch (error) {
+      if (error.response.status === 400) {
+        const errors = { username: error.response.data };
+        this.setState({ errors });
+      }
+    }
   };
 
   render() {

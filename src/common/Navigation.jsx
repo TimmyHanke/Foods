@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Input from "./Input";
 
-function Navigation() {
+function Navigation({ user }) {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light ">
       <div className="navbar-nav mt-3">
@@ -18,8 +18,18 @@ function Navigation() {
           <Input label={"Foods"} path={"/"} />
           <Input label={"Customers"} path={"/customers"} />
           <Input label={"Orders"} path={"/orders"} />
-          <Input label={"Login"} path={"/login"} />
-          <Input label={"Register"} path={"/register"} />
+          {!user && (
+            <>
+              <Input label={"Login"} path={"/login"} />
+              <Input label={"Register"} path={"/register"} />
+            </>
+          )}
+          {user && (
+            <>
+              <Input label={user.name} path={"/profile"} />
+              <Input label={"Logout"} path={"/logout"} />
+            </>
+          )}
         </ul>
       </div>
     </nav>

@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { deleteFood, getCategories, getFoods } from "../services/foodService";
 import _, { filter, includes } from "lodash";
 import { Link } from "react-router-dom";
 import Pagination from "../common/Pagination";
@@ -7,7 +8,7 @@ import { paginate } from "../utils/paginate";
 import Foodstable from "./Foodstable";
 import Form from "../common/Form";
 import SearchBox from "../common/SearchBox";
-import http from "../httpService";
+import http from "../services/httpService";
 import config from "../config.json";
 const DEFAULT_CATEGORY = { _id: "", name: "All categories" };
 
@@ -25,12 +26,12 @@ class Foods extends Form {
   };
 
   async componentDidMount() {
-    const serverCategories = await http.get(config.apiEndpointCategories);
-    const serverFoods = await http.get(config.apiEndpointFoods);
+    const categories = await getCategories();
+    const foods = await getFoods();
 
     this.setState({
-      foods: serverFoods.data,
-      categories: [DEFAULT_CATEGORY, ...serverCategories.data],
+      foods: foods.data,
+      categories: [DEFAULT_CATEGORY, ...categories.data],
     });
   }
 
@@ -55,7 +56,7 @@ class Foods extends Form {
   handleDelete = async (id) => {
     let foods = this.state.foods.filter((food) => food._id !== id);
     this.setState({ foods });
-    await http.delete(config.apiEndpointFoods + id);
+    await deleteFood(id);
   };
 
   handleSearch = (searchQuery) =>
@@ -118,9 +119,11 @@ class Foods extends Form {
             />
           </div>
           <div className="col">
-            <Link to="/foods/new" className="btn btn-primary">
-              New Food
-            </Link>
+            {this.props.user && (
+              <Link to="/foods/new" className="btn btn-primary">
+                New Food
+              </Link>
+            )}
             <p>Showing {filteredCount} foods in the database</p>
 
             <SearchBox value={this.state.search} onChange={this.handleSearch} />
@@ -131,6 +134,7 @@ class Foods extends Form {
               onDelete={this.handleDelete}
               onSort={this.handleSort}
               sortColumn={sortColumn}
+              user={this.props.user}
             />
             <Pagination
               itemCount={filteredCount}

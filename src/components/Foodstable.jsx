@@ -24,15 +24,16 @@ class foodstable extends Component {
     },
     {
       key: "delete",
-      content: (item) => (
-        <button
-          type="button"
-          className="btn btn-danger"
-          onClick={() => this.props.onDelete(item._id)}
-        >
-          delete
-        </button>
-      ),
+      content: (item) =>
+        this.props.user.isAdmin && (
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={() => this.props.onDelete(item._id)}
+          >
+            delete
+          </button>
+        ),
     },
   ];
   render() {

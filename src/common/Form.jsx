@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import FormInput from "./FormInput";
 import FormInputSelect from "./FormInputSelect";
-import http from "../httpService";
+import http from "../services/httpService";
 import config from "../config.json";
 
 class Form extends Component {
