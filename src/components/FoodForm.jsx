@@ -1,11 +1,6 @@
 import React, { Component } from "react";
-import {
-  getCategories,
-  getFoods,
-  getFoodsId,
-  getCreateFood,
-  getChangeFood,
-} from "../services/foodService";
+import { getFood, saveFood, getChangeFood } from "../services/foodService";
+import { getCategories } from "../services/catecoryService";
 import Form from "../common/Form";
 import Joi from "joi";
 import http from "../services/httpService";
@@ -14,7 +9,7 @@ import config from "../config.json";
 class FoodForm extends Form {
   state = {
     data: {
-      _id: undefined,
+      _id: "",
       name: "",
       categoryId: "",
       numberInStock: "",
@@ -22,7 +17,6 @@ class FoodForm extends Form {
     },
     errors: {},
     categories: [],
-    category: "",
   };
 
   schema = Joi.object({
@@ -43,41 +37,34 @@ class FoodForm extends Form {
   }
 
   async populateCategories() {
-    const categories = await getCategories();
-    this.setState({ categories: categories.data });
+    const { data } = await getCategories();
+    const categories = data;
+    this.setState({ categories });
   }
   async populateFoods() {
     const foodId = this.props.match.params.id;
 
     if (foodId === "new") return;
 
-    const getFoodServer = await getFoodsId(foodId);
+    const { data: food } = await getFood(foodId);
 
-    if (!getFoodServer) return this.props.history.replace("/not-found");
+    if (!food) return this.props.history.replace("/not-found");
     this.setState({
-      data: this.mapToViewModel(getFoodServer),
+      data: this.mapToViewModel(food),
     });
   }
-  mapToViewModel(getFoodServer) {
+  mapToViewModel(food) {
     return {
-      name: getFoodServer.data.name,
-      categoryId: getFoodServer.data.category._id,
-      numberInStock: getFoodServer.data.numberInStock,
-      price: getFoodServer.data.price,
+      _id: food._id,
+      name: food.name,
+      categoryId: food.category._id,
+      numberInStock: food.numberInStock,
+      price: food.price,
     };
   }
 
   doSubmit = () => {
-    const foodId = this.props.match.params.id;
-    const data = this.state.data;
-    this.setState({ data });
-
-    if (foodId === "new") {
-      getCreateFood(data);
-      return this.props.history.push("/foods");
-    }
-
-    getChangeFood(foodId, data);
+    saveFood(this.state.data);
 
     this.props.history.push("/foods");
   };

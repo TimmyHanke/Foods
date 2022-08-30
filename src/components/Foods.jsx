@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { deleteFood, getCategories, getFoods } from "../services/foodService";
+import { deleteFood, getFoods } from "../services/foodService";
+import { getCategories } from "../services/catecoryService";
 import _, { filter, includes } from "lodash";
 import { Link } from "react-router-dom";
 import Pagination from "../common/Pagination";
@@ -26,12 +27,13 @@ class Foods extends Form {
   };
 
   async componentDidMount() {
-    const categories = await getCategories();
-    const foods = await getFoods();
+    const { data } = await getCategories();
+    const categories = [DEFAULT_CATEGORY, ...data];
+    const { data: foods } = await getFoods();
 
     this.setState({
-      foods: foods.data,
-      categories: [DEFAULT_CATEGORY, ...categories.data],
+      foods,
+      categories,
     });
   }
 

@@ -4,20 +4,17 @@ import http from "./httpService";
 export function getFoods() {
   return http.get(config.apiEndpointFoods);
 }
-export function getFoodsId(id) {
+export function getFood(id) {
   return http.get(`http://localhost:8000/api/foods/${id}`);
 }
 
-export function getCategories() {
-  return http.get(config.apiEndpointCategories);
-}
+export function saveFood(food) {
+  const { _id: foodId, ...body } = food;
+  if (foodId) {
+    return http.put(`http://localhost:8000/api/foods/${foodId}`, body);
+  }
 
-export function getCreateFood(data) {
-  return http.post(config.apiEndpointFoods, data);
-}
-
-export function getChangeFood(id, data) {
-  return http.put(`http://localhost:8000/api/foods/${id}`, data);
+  return http.post(config.apiEndpointFoods, body);
 }
 
 export function deleteFood(id) {
